@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Multi Shot</title>
+  <meta charset="UTF-8">  
+  <meta name="description" content="Tracking of moving objects in videos. Educational tool.">
+  <meta name="keywords" content="video, multiple exposure photography, stroboscope, motion, schools, education, classroom">
+  <meta name="author" content="Jeroen van Tilburg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--meta property="og:image" content="https://jeroenvantilburg.nl/multishot/img/screenshot.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jeroenvantilburg.nl/multishot/" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="mask-icon" href="safari-pinned-tab.svg" color="#3a77ed">
+  <link rel="shortcut icon" href="favicon.ico">
+  <meta name="msapplication-TileColor" content="#2d89ef">
+  <meta name="msapplication-config" content="browserconfig.xml">
+  <meta name="theme-color" content="#ffffff"-->  
+  <link rel="stylesheet" type="text/css" href="style.css" media="screen,projection" />
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <base target="_blank">
+</head>  
+<body>
+  <div class="header">    
+    <div class="titlebar">
+      <!--img id="main-icon" src="mstile-70x70.png"></img--> Multi Shot
+    </div>    
+    <div class="menubar">    
+      <div class="dropdown"> 
+        <button class="dropbtn"><i class="fa fa-bars"></i></button>    
+        <div class="dropdown-content">  
+          <a id="showAbout"><i class="fa fa-vcard"></i> About</a>
+          <a id="showSettings"><i class="fa fa-cog"></i> Settings</a>
+          <a id="videoImport" disabled><i class="fa fa-upload"></i> Upload new video</a>          
+          <input id="videoInput" type="file" accept="video/*,.mkv,.mov" hidden/>
+          <a id="demo"><i class="fa fa-play-circle"></i> Load demo video</a>
+          <a id="showHelp"><i class="fa fa-question-circle-o"></i> Help</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="body">
+    <div class="showSideBar"><i class="fa fa-angle-left"></i></div>
+    <div class="hideSideBar"><i class="fa fa-angle-right"></i></div>
+    <div class="page">  
+	  	<div class="page-header">               
+        <div class="center">
+          <button title="Start/Stop the video analysis" id="startAnalysis" class="main-button button-on" disabled>Start analysis</button>
+        </div>
+        <div class="center">
+           <nobr id="statusMsg"></nobr>
+        </div>
+        <div class="center">
+          <button title="Go to previous frame" id="prev" class="player" disabled><i class="fa fa-step-backward"></i></button>
+          <button title="Play / Pause" id="play" class="player" disabled><i class="fa fa-play"></i></button>
+          <button title="Go to next frame" id="next" class="player" disabled><i class="fa fa-step-forward"></i></button>
+          <input id="slider" type="range" min="0" max="0" step=1 value="0" disabled>
+          <nobr id="frameNumber">0 / 0</nobr>
+          <button title="Zoom out" id="zoomOut" class="player" disabled><i class="fa fa-search-minus"></i></button>
+          <button title="Zoom in" id="zoomIn" class="player" disabled><i class="fa fa-search-plus"></i></button>
+          <button title="Show video file info" id="showMediaInfo" class="player" disabled><i class="fa fa-info"></i></button>
+      </div>
+      </div>
+      <div class="page-content">
+        <div id="canvasContainer" class="container" style="position:relative">
+          <video id="video" autoplay playsinline muted style="display:none;"></video>
+          <canvas id="canvasVideo"></canvas>
+          <div id="videoText"></div>
+        </div>    
+      </div>
+		</div>
+    
+    <div class="sidebar">
+      <div class="side-header">
+        Data        
+      </div>
+      <div class="side-content">
+        <table style="border-spacing: 0;">
+          <tr>
+            <td title="Set the frame rate (frames per second) manually">Frame rate:</td>
+            <td title="Set the frame rate (frames per second) manually"><input id="fpsInput" type="text" style="width:80px"></input> fps</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- The Modal boxes -->
+  <!--div id="graphModal" class="modal">
+    <div class="modal-content modal-large"> <span title="Close window" class="close">&times;</span>
+      <div class="chart-container-modal">
+        <canvas id="modalChart" class="chart"></canvas>
+      </div>
+    </div>
+  </div-->
+
+  <div id="aboutModal" class="modal">
+    <div class="modal-content modal-small"> <span title="Close window" class="close">&times;</span>
+      <center>
+        <h3>Multi shot</h3>
+          <!--img id="about-icon" src="mstile-70x70.png"></img><br clear="all"/><br/-->
+          &copy; 2022 Jeroen van Tilburg, The Unlicense <br/>
+          Feedback to <feedback></feedback> <br/> 
+          Source code: <a href="https://github.com/jeroenvantilburg/multishot">GitHub</a> <br/>
+      </center>
+    </div>
+  </div>
+
+  <div id="helpModal" class="modal">
+    <div class="modal-content"> <span title="Close window" class="close">&times;</span>
+      <h2>Help</h2>
+
+      <b>General</b><br/>
+      Multi Shot is a HTML5 javascript-application for analysing the motion of objects in videos.
+      It is primarily intended for use in classrooms to teach students about motion
+      and mechanics. 
+      <br/><br/>
+      
+      <b>Getting started</b><br/>
+      ...
+      <br/>
+      
+      <b>Video formats</b><br/>
+      Video support depends on the browser and operating system. Almost all browsers support
+      the common video containers (MP4, MOV, WebM and Ogg). On the other hand, be aware that
+      support for the HEVC (H.265) codec is <a href="https://caniuse.com/hevc">limited</a> 
+      to mostly Safari. For instance, in case you want to analyse videos that have been 
+      recorded by an iPhone 7 or later, either  
+      <a href="https://www.maketecheasier.com/iphone-use-jpg-instead-of-heif/">change the format</a>
+      on your iPhone or convert the video using any <a href="https://video-converter.com">online 
+      video converter</a>. You can find the actual video format by clicking on the 
+      <i class="fa fa-info"></i> icon after uploading the video.
+      <br/><br/>
+
+      <b>Video requirements</b><br/>
+      The camera should not move during the video. 
+      <br/><br/>
+
+      <b>Setting up the analysis</b><br/>
+      Upload the video that you would like to analyse. 
+      The frame rate is then automatically obtained from the video meta data 
+      using the MediaInfo tool. 
+      In the event that this calculation stalls, you can set the frame rate manually. In most cases
+      a frame rate of 30 or 60 frames per second (fps) is appropriate. 
+      <br/><br/>
+
+      <b>Security/privacy</b><br/>
+      No data leaves your computer by using this website. All analysis is done locally on your own
+      computer. This is a cookie-free website.
+      <br/><br/>
+
+      <b>Webapp compatibility</b><br/>
+      Multi Shot does not work in Internet Explorer. In case you are still using IE, please 
+      consider moving to a modern browser like Chrome, Edge, Firefox or Safari.
+      <br/><br/>
+
+      <b>Embed code</b><br/>
+      Teachers and others can embed Multi Shot in their own virtual learning environment (VLE).
+      The embed code would be for example:<br/>
+      <pre> &lt;iframe src=&quot;https://jeroenvantilburg.nl/multishot/&quot; width=&quot;100%&quot; height=&quot;800&quot;&gt;&lt;/iframe&gt;</pre><br/>
+      The width and height should be adjusted for your own environment.
+      <br/><br>
+
+      <b>Source code</b><br>
+      The source code from this website is freely available on 
+      <a href="https://github.com/jeroenvantilburg/multishot">GitHub</a> under the 
+      <a href="https://en.wikipedia.org/wiki/Unlicense">MIT license</a>. The source code
+      may be freely copied and hosted on every web server. Please make sure to keep the code
+      up-to-date since new updates and bug fixes come out regularly.
+      <br/><br/>
+
+      <b>Feedback and questions</b><br/>
+      To keep this website as user-friendly as possible I depend on your feedback. Please send your
+      questions, improvements, bug reports, suggestions, comments and compliments 
+      to <feedback></feedback>. 
+      <br/><br> 
+      
+      <b>Acknowledgments</b><br/>
+      Many thanks to <a href="https://github.com">GitHub</a> and 
+      <a href="https://pages.github.com">GitHub Pages</a> for hosting Multi Shot.
+      Multi Shot depends on the following useful javascript libraries:
+      <ul>
+        <li><a href="https://jquery.com">jQuery</a>: DOM manipulation</li>
+        <li><a href="https://mediaarea.net/en/MediaInfo/">Mediainfo.js</a>: 
+          extract meta data from video files</li>
+        <li><a href="https://opencv.org">OpenCV</a>: computer vision and machine learning 
+          software library</li>
+      </ul>
+      <br/>
+
+      <b>Other applications</b><br/>
+      Besides Multi Shot, there are a number of other, third-party applications that can be used 
+      to analyse videos. Select the application that suits your needs.
+      <ul>
+        <li><a href="http://x-application.sony.net/motionshot/en/">Sony motion shot</a> (free) is an app
+          for Android and iOS that automatically renders the movement in a video into a single still 
+          image.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="modal">
+    <div class="modal-content"> <span title="Close window" class="close">&times;</span>
+      <h2>Settings</h2>
+      <!--table>        
+        <tr><th colspan="3">Analysis</th></tr>        
+        <tr>
+          <td>Draw all markers:</td>
+          <td><input id="drawAllPoints" type="checkbox"></input></td>
+          <td>Show the markers of each data point in the video frame. When unchecked only the 
+            data point for the current frame is shown (if there is one).</td>
+        </tr>
+        <tr>
+          <td>Skip frames:</td>
+          <td><input id="framesToSkip" type="number" min="-100" step="1" max="100"></input></td>
+          <td>Number of frames to skip during analysis. Larger numbers will speed up the analysis. 
+            Negative number reverses the playback.</td>
+        </tr>
+      </table-->        
+      <br/>
+    </div>
+  </div>
+
+  <div id="mediaInfoModal" class="modal">
+    <div class="modal-content"> <span title="Close window" class="close">&times;</span>
+      <h2>Video File Info</h2>      
+      <div id="videoInfo"></div>
+    </div>
+  </div>
+
+  <!--script src="scripts/registerSW.js"></script-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>cript-->
+  <script async src="scripts/opencv_bgfg.js" id="opencv"></script>  
+  <script src="scripts/multishot.js"></script>
+  <!--script data-goatcounter="https://multishot.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script-->
+  <noscript>Your browser does not support JavaScript!</noscript> 
+
+</body>
+</html>
