@@ -333,7 +333,7 @@
     try{
       // Initialise MediaInfo
       MI = new MediaInfoModule.MediaInfo();
-      
+
       const file = $('#videoInput').prop('files')[0];
       MI.Open(file, getResults);
     } catch (error) {
@@ -664,7 +664,15 @@
     }    
   });
 
-  $("#skip").change( function() { showResult() });
+  $("#skipSlider").change( function() { 
+    $("#skip").val( $(this).val() );
+    showResult();
+  });
+
+  $("#skip").change( function() { 
+    $("#skipSlider").val( $(this).val() );
+    showResult();
+  });
 
   function showResult() {
 
