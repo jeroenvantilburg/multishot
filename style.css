@@ -137,7 +137,7 @@ input:disabled+label {
   overflow: auto;
 }
 
-.sidebar {
+/*.sidebar {
   padding: 0px 5px;
   padding: 0px 0px;
   background: #fbfbfb;
@@ -188,7 +188,7 @@ input:disabled+label {
   vertical-align: top;
   margin-top: -5px;
 }
-
+*/
 
 /* Layout for the start and stop button */
 .main-button {
@@ -442,9 +442,9 @@ input:disabled+label {
 @media screen and (max-width: 780px) { 
   .body {display: block;}
   .page {width: 100vw; height: 100%}
-  .sidebar{position: absolute; top: 0px; width: 0px; transition: 0.3s;
+  /*.sidebar{position: absolute; top: 0px; width: 0px; transition: 0.3s;
     right: 0px; height: 100%;}
-  .showSideBar{display: block;}
+  .showSideBar{display: block;}*/
   
   .modal-content{padding: 5px;width: 98%;}
    #settingsModal table td:nth-child(1) {min-width: 80px;}

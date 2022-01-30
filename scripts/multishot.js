@@ -16,7 +16,7 @@
   let currentFrame = 0;
   let t0 = 0;
   let zoomLevel = 1;
-  let FPS; // Frame rate
+  let FPS = toNumber( $("#fpsInput").val() );
   let videoRotation = 0; // in degrees
   //let demoLocation = "videos/demo_bounching_ball.mp4";
   let videoFormat = "";
@@ -25,42 +25,9 @@
        Adjust design to screen size
      =========================================== */
   
-  // Hide/show sidebar on small screens
-  let maxSideBarWidth = 360; // Width of sidebar (can be smaller on small mobile screens)
-  $(".showSideBar").click( () => {     
-    let sideBarWidth = Math.min(maxSideBarWidth, window.innerWidth ); 
-    $(".sidebar").width( sideBarWidth );
-    $(".showSideBar").hide();
-    $(".hideSideBar").show();
-  });
-  $(".hideSideBar").click( () => { 
-    $(".sidebar").width(0);
-    $(".showSideBar").show();
-    $(".hideSideBar").hide();
-  });
-
-  // Event listener for resizing the window
-  $(window).resize( resizeWindow );
-  function resizeWindow() {
-        
-    // Modify width of sidebar if it becomes too small
-    let sideBarWidth = Math.min(maxSideBarWidth, window.innerWidth ); 
-    $(".sidebar").width( sideBarWidth );
-
-    if( window.innerWidth > 780 ) { // 780 is the division between small/large screens
-      $(".sidebar").width( sideBarWidth );
-      $(".showSideBar").hide();
-      $(".hideSideBar").hide();      
-    } else {
-      if( $(".sidebar").width() < 1 ) { $(".hideSideBar").click(); }
-      else { $(".showSideBar").click(); }
-    }
-  }
-
   // load all code after the document
   $("document").ready( () => {
     $("#videoImport").removeAttr('disabled'); // Videos can now be imported
-    resizeWindow(); // Trigger resize for responsive effect
     setFeedback();
   });
   
@@ -226,8 +193,8 @@
     video.load();
 
     // Clear raw data and meta data
-    FPS = undefined;
-    updateFPS();
+    //FPS = undefined;
+    //updateFPS();
     
     canvasVideoCtx.restore(); // Go back to original state
     $("#orientationInput").val("0"); 
@@ -301,14 +268,15 @@
     }*/
     
     // Highlight fields that still need to be filled
-    $("#fpsInput").css("background", "pink");
+    //$("#fpsInput").css("background", "pink");
     
     // Put the graphics back
     //showCalibrationControls();
 
     // Get the frame rate
-    if( getMediaInfo ) getFPS();
-    else $('#statusMsg').html("Set the frame rate manually");
+    getFPS();
+
+    //else $('#statusMsg').html("Set the frame rate manually");
   });
   
   // Show the video when it has been loaded
@@ -316,6 +284,7 @@
     let firstFrame = 0;
     //if( (video.src).endsWith( demoLocation ) ) firstFrame = 5; // exception for the demo
     gotoFrame( firstFrame );
+    tryToEnable();
   });
 
   /* ====== MEDIAINFO (FPS) SECTION ============
@@ -347,7 +316,7 @@
       
       // Update frame rate
       let frameRate = MI.Get(MediaInfoModule.Stream.Video, 0, 'FrameRate');
-      updateFPS( frameRate );
+      $("#fpsInput").val( frameRate );
 
       // Get the video format
       videoFormat = MI.Get(MediaInfoModule.Stream.Video, 0, 'Format');
@@ -358,31 +327,37 @@
     }
               
     // Initialise MediaInfo
-    MI = new MediaInfoModule.MediaInfo();
+    //MI = new MediaInfoModule.MediaInfo();
 
     //Open the file
     try{
+      // Initialise MediaInfo
+      MI = new MediaInfoModule.MediaInfo();
+      
       const file = $('#videoInput').prop('files')[0];
       MI.Open(file, getResults);
     } catch (error) {
       alert("An error occured. Please set frame rate manually.\n" + error);
       $('#statusMsg').html( "" );
     }    
+
+    // Trigger a change such that the slider is set
+    $("#fpsInput").change();
   }
   
   // Update the frame rate (fps)
-  function updateFPS( rate ) {
+  /*function updateFPS( rate ) {
     $("#fpsInput").val( rate );
     $("#fpsInput").change();
-  }
+  }*/
 
   // Update the frame rate (fps) when user gives input or when calculated
   $("#fpsInput").change( function() {
     if( isNumeric(this.value) && toNumber(this.value) > 0 ) {
 
       // Remove status message
-      $('#statusMsg').html( "" );   
-      this.style.background = ""; // remove pink alert
+      //$('#statusMsg').html( "" );   
+      //this.style.background = ""; // remove pink alert
 
       // Set the new FPS
       FPS = toNumber(this.value);
@@ -399,11 +374,11 @@
         gotoFrame( 0 );
         
         // Video can be enabled
-        tryToEnable();
+        //tryToEnable();
       }
-    } else if (this.value == "expert") {
-      setExpert();
-    }
+    } //else if (this.value == "expert") {
+      //setExpert();
+    //}
     this.value = FPS || "";
   });
 
@@ -427,15 +402,6 @@
       canvasVideoCtx.translate(-video.videoHeight, 0 );
       if( aspectRatio < 1 ) canvasVideoCtx.scale( 1/aspectRatio, 1);
       else canvasVideoCtx.scale( 1/aspectRatio, aspectRatio );
-    }
-  }
-
-  function tryToEnable() {
-    if( video.src === "" ) return;
-    if( $("#fpsInput").val() !== "" ) {
-      enableVideoControl();
-      $('#statusMsg').html("");
-      enableAnalysis();
     }
   }
 
@@ -622,11 +588,16 @@
      Enable/disable button
      =========================================== */    
 
+  let bgMat;
+  let masks = [];
+  let fgmasks = [];
+
   // Enable automatic analysis only when openCV is ready
   let openCVReady = false;
   $("#opencv").on("load", () => {
     cv['onRuntimeInitialized']=()=>{
       openCVReady = true;
+      tryToEnable();
       
       // Only enable the automatic analysis when Start analysis button is enabled
       //if( !($("#startAnalysis").prop("disabled")) ) 
@@ -635,21 +606,28 @@
     }
   });
 
+  function tryToEnable() {
+    if( video.src === "" ) return;
+    //if( $("#fpsInput").val() !== "" ) {
+    enableVideoControl();
+      //$('#statusMsg').html("");
+    if( openCVReady ) enableAnalysis();
+    //}
+  }
+
   // Enable, disable and set "Start/Stop analysis" button
-  let analysisStarted = false;
+  let processing = false;
   function setStartAnalysis() {
-    analysisStarted = false;
+    processing = false;
     $("#startAnalysis").text( "Start analysis" );
     $("#startAnalysis").addClass("button-on");
     $("#startAnalysis").removeClass("button-off");    
-    //if( openCVReady ) $("#automaticAnalysis").removeAttr('disabled');    
   }
   function setStopAnalysis() {
-    analysisStarted = true;
+    processing = true;
     $("#startAnalysis").text( "Stop analysis" );
     $("#startAnalysis").addClass("button-off");
     $("#startAnalysis").removeClass("button-on");
-    //if( openCVReady ) $("#automaticAnalysis").attr('disabled','');    
   }  
   function enableAnalysis() {
     $("#startAnalysis").removeAttr('disabled');
@@ -670,7 +648,7 @@
       return;
     }
 
-    if( analysisStarted === false ) {
+    if( processing === false ) {
       
       // Change the button to "Stop analysis"
       setStopAnalysis();
@@ -686,13 +664,12 @@
     }    
   });
 
+  $("#skip").change( function() { showResult() });
 
-  let masks = [];
-  let fgmasks = [];
-  let bgMat;
+  function showResult() {
 
-  function showResult(nSkip) {
-
+    let nSkip = parseInt($("#skip").val() );
+    
     let newResult = new cv.Mat(video.height, video.width, cv.CV_8UC4);//bgMat.clone();
     cv.cvtColor( bgMat, newResult, cv.COLOR_BGR2BGRA );
     console.log("numbers of frames = " + masks.length);
@@ -704,7 +681,7 @@
       fgmasks[j].copyTo(newResult, fgmasks[j]);
     }
 
-    cv.imshow('canvasVideo', newResult);
+    cv.imshow('canvasResult', newResult);
     newResult.delete();
   }
 
@@ -731,24 +708,21 @@
 
     bgMat = new cv.Mat(video.height, video.width, cv.CV_8UC3);
 
-    let f = 3; //parseInt($("#frequency").val());
-    let threshold = 16;//parseFloat($("#threshold").val());
+    let f = parseInt($("#frequency").val());
+    let threshold = toNumber($("#threshold").val());
     let history = Math.round( 2*FPS * video.duration / f); 
     let fgbg = new cv.BackgroundSubtractorMOG2(history, threshold, true);
-    let lr= -0.1;//parseFloat($("#learningRate").val());
+    let lr= toNumber($("#learningRate").val());
     let i = 0;
-    //let firstPass = $('#twoPass').is(':checked'); // False = No second pass
-    fgbg.setNMixtures( 5);//parseFloat($("#nmixtures").val()) ); 
-    fgbg.setBackgroundRatio( 0.5 );//parseFloat($("#backgroudRatio").val()) ); 
-    fgbg.setShadowThreshold( 0.5 );//parseFloat($("#shadowThreshold").val()) ); 
-    fgbg.setVarThresholdGen( 9 );//parseFloat($("#varThresholdGen").val()) ); 
-    fgbg.setVarInit( 400 );//parseFloat($("#varInit").val()) ); 
-    fgbg.setVarMin( 4 );//parseFloat($("#varMin").val()) ); 
-    fgbg.setVarMax( 1600 );//parseFloat($("#varMax").val()) ); 
-    fgbg.setComplexityReductionThreshold( 0.05 );//parseFloat($("#CRT").val()) ); 
-
-    let processing = false;
-    let firstPass = true;
+    let firstPass = $('#twoPass').is(':checked'); // False = No second pass
+    fgbg.setNMixtures( toNumber($("#nmixtures").val()) ); 
+    fgbg.setBackgroundRatio( toNumber($("#backgroudRatio").val()) ); 
+    fgbg.setShadowThreshold( toNumber($("#shadowThreshold").val()) ); 
+    fgbg.setVarThresholdGen( toNumber($("#varThresholdGen").val()) ); 
+    fgbg.setVarInit( toNumber($("#varInit").val()) ); 
+    fgbg.setVarMin( toNumber($("#varMin").val()) ); 
+    fgbg.setVarMax( toNumber($("#varMax").val()) ); 
+    fgbg.setComplexityReductionThreshold( toNumber($("#CRT").val()) ); 
 
     function processVideo() {
       try {
@@ -758,10 +732,11 @@
           //console.log( "i = " + i);
           fgbg.getBackgroundImage(bgMat);
 
-          showResult( 1 ); //parseInt($("#skip").val()) );
           frame.delete(); mask.delete(); fgbg.delete();
           frameRGB.delete(); fgmask.delete();
           tryToEnable();
+          showResult();
+          showModal("resultModal");
           return;
         }
         // start processing.
@@ -788,7 +763,7 @@
         //console.log("i=" + i);
 
         // schedule the next one.
-        let delay = 0;//1000/FPS - (Date.now() - begin);
+        let delay = 0;
         i += Math.round(f);
         if( i/FPS > video.duration ) {
           console.log("i=" + i);
@@ -799,7 +774,6 @@
             lr = 0.0;
             console.log("first pass done");
           } else {
-            processing = false;
             setStartAnalysis();
             $('#statusMsg').html( "" );
           }
@@ -822,7 +796,6 @@
 
     // schedule the first one.
     video.currentTime = 0 ;
-    processing = true;
     video.addEventListener("seeked", function(e) {
       // remove handler or else it will draw another frame on same canvas in next seek
       e.target.removeEventListener(e.type, arguments.callee); 
