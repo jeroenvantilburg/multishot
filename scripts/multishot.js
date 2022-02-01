@@ -203,8 +203,8 @@
     // Disable video control and reset video parameters when selecting new video
     disableAnalysis();
     disableVideoControl();
-    $('#frameNumber').html( "0 / 0" );
-    $("#slider").attr("max", 0 );
+    //$('#frameNumber').html( "0 / 0" );
+    //$("#slider").attr("max", 0 );
   }
   
   // Add event listener for when file is selected
@@ -367,8 +367,14 @@
       
       if( video.src !== "" ) {
         // Update the slider
-        $("#slider").attr("max", Math.round( ((video.duration-t0) * FPS).toFixed(1) ) - 1 );
-    
+        let lastFrame = Math.round( ((video.duration-t0) * FPS).toFixed(1) ) - 1;
+        //$("#slider").attr("max", Math.round( ((video.duration-t0) * FPS).toFixed(1) ) - 1 );
+        $("#slider-range").slider( "option", "max", lastFrame );
+        $("#slider-range").slider("values", 0, 0);
+        $("#slider-range").slider("values", 1, lastFrame);
+        $("#startFrame").val(0);
+        $("#endFrame").val(lastFrame);
+
         // Always reset to first frame
         //if( !(video.src).endsWith( demoLocation ) ) 
         gotoFrame( 0 );
@@ -410,12 +416,42 @@
      prev functions
      =========================================== */    
 
+  // Create a slider with jQuery UI
+  $( function() {
+    $( "#slider-range" ).slider({
+      disabled: true,
+      range: true,
+      min: 0,
+      max: 1,
+      values: [ 0, 1 ],
+      slide: function( event, ui ) {
+        if( ui.handleIndex == 0 ) {
+          $("#startFrame").val( ui.value );
+        } else {
+          $("#endFrame").val( ui.value );          
+        }
+        gotoFrame( ui.value );
+      }
+    });
+    $("#startFrame").change( function() {
+      $("#slider-range").slider("values", 0, this.value);
+      gotoFrame( this.value );
+    });
+    $("#endFrame").change( function() {
+      $("#slider-range").slider("values", 1, this.value);
+      gotoFrame( this.value );
+    });
+  } );
+
   // Enable the video control buttons
   function enableVideoControl() {
-    $('#prev').removeAttr('disabled');
+    //$('#prev').removeAttr('disabled');
     $('#play').removeAttr('disabled');
-    $('#next').removeAttr('disabled');
+    //$('#next').removeAttr('disabled');
     $('#slider').removeAttr('disabled');
+    $('#slider-range').slider( "option", "disabled", false );
+    $('#startFrame').removeAttr('disabled');
+    $('#endFrame').removeAttr('disabled');
     $("#zoomIn").removeAttr('disabled');
     $("#zoomOut").removeAttr('disabled');
     $('#showMediaInfo').removeAttr('disabled');
@@ -423,23 +459,26 @@
 
   // Disable the video control buttons
   function disableVideoControl() {
-    $('#prev').attr('disabled', '');
+    //$('#prev').attr('disabled', '');
     $('#play').attr('disabled', '');
-    $('#next').attr('disabled', '');
+    //$('#next').attr('disabled', '');
     $('#slider').attr('disabled', '');  
+    $('#slider-range').slider( "option", "disabled", true );
+    $('#startFrame').attr('disabled', '');  
+    $('#endFrame').attr('disabled', '');  
     $("#zoomIn").attr('disabled', '');
     $("#zoomOut").attr('disabled', '');
     $("#showMediaInfo").attr('disabled', '');
   }
 
   // Go to the previous frame
-  $('#prev').click(function() { gotoFrame(currentFrame-1); });
+  //$('#prev').click(function() { gotoFrame(currentFrame-1); });
 
   // Go to the next frame
-  $('#next').click(function() { gotoFrame(currentFrame+1); });
+  //$('#next').click(function() { gotoFrame(currentFrame+1); });
 
   // Update the frame when slider changes
-  $("#slider").change( function() { gotoFrame(Math.floor(this.value)); });
+  //$("#slider").change( function() { gotoFrame(Math.floor(this.value)); });
 
   // Play the video (not an essential function, just to give the user a play button)
   let playing = false;
@@ -447,10 +486,12 @@
     $(this).find('.fa-play,.fa-pause').toggleClass('fa-pause').toggleClass('fa-play');
     if ( playing === false ) {
       playing = true;
+      currentFrame = parseInt( $("#startFrame").val() );
+      let lastFrame = parseInt( $("#endFrame").val() );
       let that = this;
       // Recursively calling next frame
       function playNextFrame() {
-        if( playing && gotoFrame(currentFrame+1) ) {
+        if( playing && currentFrame < lastFrame && gotoFrame(currentFrame+1) ) {
           video.addEventListener("seeked", function(e) {
             e.target.removeEventListener(e.type, arguments.callee);
             window.setTimeout( playNextFrame, 1000/FPS );
@@ -497,8 +538,8 @@
         e.target.removeEventListener(e.type, arguments.callee); 
         
         canvasVideoCtx.drawImage(video,0,0);
-        $('#frameNumber').html( currentFrame + " / " + $("#slider").attr("max") );
-        $("#slider").val( currentFrame );
+        //$('#frameNumber').html( currentFrame + " / " + $("#slider").attr("max") );
+        //$("#slider").val( currentFrame );
       });
       return true;
     }
@@ -699,6 +740,9 @@
     $('#statusMsg').html( "Processing..." );
     disableVideoControl();
 
+    let firstFrame = parseInt( $("#startFrame").val() );
+    let lastFrame  = parseInt( $("#endFrame").val() );
+
     // Remove old bgmat
     if( bgMat ) bgMat.delete();
     for( let i=0; i<masks.length; ++i) {
@@ -721,7 +765,7 @@
     let history = Math.round( 2*FPS * video.duration / f); 
     let fgbg = new cv.BackgroundSubtractorMOG2(history, threshold, true);
     let lr= toNumber($("#learningRate").val());
-    let i = 0;
+    let i = firstFrame;
     let firstPass = $('#twoPass').is(':checked'); // False = No second pass
     fgbg.setNMixtures( toNumber($("#nmixtures").val()) ); 
     fgbg.setBackgroundRatio( toNumber($("#backgroudRatio").val()) ); 
@@ -734,19 +778,6 @@
 
     function processVideo() {
       try {
-        if (!processing) {
-          // clean and stop.
-          //console.log("Stopping streaming");
-          //console.log( "i = " + i);
-          fgbg.getBackgroundImage(bgMat);
-
-          frame.delete(); mask.delete(); fgbg.delete();
-          frameRGB.delete(); fgmask.delete();
-          tryToEnable();
-          showResult();
-          showModal("resultModal");
-          return;
-        }
         // start processing.
         frame = cv.imread('canvasVideo');
 
@@ -771,13 +802,14 @@
         //console.log("i=" + i);
 
         // schedule the next one.
-        let delay = 0;
+        //let delay = 0;
         i += Math.round(f);
-        if( i/FPS > video.duration ) {
+        if( i > lastFrame ) {
+        //if( i/FPS > video.duration ) {
           console.log("i=" + i);
           if( firstPass ) {
             firstPass = false;
-            i = 0;
+            i = firstFrame;
             // Set the next iteration to zero
             lr = 0.0;
             console.log("first pass done");
@@ -785,15 +817,29 @@
             setStartAnalysis();
             $('#statusMsg').html( "" );
           }
+        } 
+
+        if (!processing) {
+          // clean and stop.
+          //console.log("Stopping streaming");
+          //console.log( "i = " + i);
+          fgbg.getBackgroundImage(bgMat);
+
+          frame.delete(); mask.delete(); fgbg.delete();
+          frameRGB.delete(); fgmask.delete();
+          tryToEnable();
+          showResult();
+          showModal("resultModal");
+          return;
         }
-        video.currentTime = i/FPS ;
+        //video.currentTime = i/FPS ;
+        gotoFrame( i );
 
         video.addEventListener("seeked", function(e) {
           // remove handler or else it will draw another frame on same canvas in next seek
           e.target.removeEventListener(e.type, arguments.callee); 
-          canvasVideoCtx.drawImage(video,0,0);
-          setTimeout(processVideo, delay);
-       
+          //canvasVideoCtx.drawImage(video,0,0);
+          setTimeout(processVideo, 0);
         });
       } catch (err) {
        console.error('There was an error:', err);
@@ -803,11 +849,12 @@
     };
 
     // schedule the first one.
-    video.currentTime = 0 ;
+    //video.currentTime = 0 ;
+    gotoFrame( firstFrame );
     video.addEventListener("seeked", function(e) {
       // remove handler or else it will draw another frame on same canvas in next seek
       e.target.removeEventListener(e.type, arguments.callee); 
-      canvasVideoCtx.drawImage(video,0,0);
+      //canvasVideoCtx.drawImage(video,0,0);
       //result = cv.imread('canvasVideo');
       setTimeout(processVideo, 0);     
     });

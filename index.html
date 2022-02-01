@@ -19,10 +19,43 @@
   <meta name="msapplication-TileColor" content="#2d89ef">
   <meta name="msapplication-config" content="browserconfig.xml">
   <meta name="theme-color" content="#ffffff"-->  
+
+
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+  <!--link rel="stylesheet" href="/resources/demos/style.css"-->
+
   <link rel="stylesheet" type="text/css" href="style.css" media="screen,projection" />
   <link rel="stylesheet" 
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <base target="_blank">
+
+
+  <!--script>
+  $( function() {
+    $( "#slider-range" ).slider({
+      range: true,
+      min: 0,
+      max: 500,
+      values: [ 75, 300 ],
+      slide: function( event, ui ) {
+        if( ui.handleIndex == 0 ) {
+          $("#startFrame").val( ui.value );
+        } else {
+          $("#endFrame").val( ui.value );          
+        }
+      }
+    });
+    $("#startFrame").change( function() {
+      $( "#slider-range" ).slider("values", 0, this.value);
+    });
+    $("#endFrame").change( function() {
+      $( "#slider-range" ).slider("values", 1, this.value);
+    });
+  } );
+  </script-->
+ 
+
+
 </head>  
 <body>
   <div class="header">    
@@ -55,16 +88,19 @@
         <div class="center">
            <nobr id="statusMsg"></nobr>
         </div>
-        <div class="center">
-          <button title="Go to previous frame" id="prev" class="player" disabled><i class="fa fa-step-backward"></i></button>
+        <div class="control">
+          <!--button title="Go to previous frame" id="prev" class="player" disabled><i class="fa fa-step-backward"></i></button-->
           <button title="Play / Pause" id="play" class="player" disabled><i class="fa fa-play"></i></button>
-          <button title="Go to next frame" id="next" class="player" disabled><i class="fa fa-step-forward"></i></button>
-          <input id="slider" type="range" min="0" max="0" step=1 value="0" disabled>
-          <nobr id="frameNumber">0 / 0</nobr>
+          <!--button title="Go to next frame" id="next" class="player" disabled><i class="fa fa-step-forward"></i></button-->
+          <!--input id="slider" type="range" min="0" max="0" step=1 value="0" disabled>
+          <nobr id="frameNumber">0 / 0</nobr-->
+          <input id="startFrame" class="sliderInput" type="number" value="" disabled></input>
+          <div id="slider-range"></div>
+          <input id="endFrame" class="sliderInput" type="number" value="" disabled></input>
           <button title="Zoom out" id="zoomOut" class="player" disabled><i class="fa fa-search-minus"></i></button>
           <button title="Zoom in" id="zoomIn" class="player" disabled><i class="fa fa-search-plus"></i></button>
           <button title="Show video file info" id="showMediaInfo" class="player" disabled><i class="fa fa-info"></i></button>
-      </div>
+        </div>
       </div>
       <div class="page-content">
         <div id="canvasContainer" class="container" style="position:relative">
@@ -295,7 +331,9 @@
   </div>
 
   <!--script src="scripts/registerSW.js"></script-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>cript-->
+  <!--script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script-->
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
   <script async src="scripts/opencv_bgfg.js" id="opencv"></script>  
   <script src="scripts/multishot.js"></script>
   <!--script data-goatcounter="https://multishot.goatcounter.com/count"

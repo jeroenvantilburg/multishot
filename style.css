@@ -7,6 +7,34 @@ html, body {
   -webkit-text-size-adjust: 100%; /* prevent scaling in landscape modus */
 }
 
+.control {
+  display: flex;
+}
+.ui-slider {
+  height: 0.5em;
+  flex: 1 1 200px;
+  vertical-align: initial;
+  margin: 7px;
+}
+
+.ui-slider .ui-slider-handle {
+  width:1em;
+  height:1em;
+  border-radius: 1em;  
+  background-color: dodgerblue;
+  z-index: 1;
+}
+
+.ui-slider .ui-slider-range {
+  background-color: dodgerblue;
+}
+
+.sliderInput {
+  width: 50px;
+  flex: 0 0 50px;
+  margin: 0px 3px;
+}
+
 /* Include padding and border in total width */
 body * {
   box-sizing: border-box;
@@ -61,13 +89,13 @@ input:disabled+label {
 
 /* Video controls */
 .player {
-  width: 35px;
   background: #666666;
   border: none;
   color: white;
-  padding: 3px 0px;
   border-radius: 4px;
   font-size: 0.9em;
+  flex: 0 0 35px;
+  margin: 0px 3px;
 }
 
 .player:disabled {
@@ -75,9 +103,9 @@ input:disabled+label {
   color: #eee;
 }
 
-#slider {
+/*#slider {
   vertical-align: middle;
-}
+}*/
 
 /* Text inside the video (for displaying zoom and time) */
 #videoText{
