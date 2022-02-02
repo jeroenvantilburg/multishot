@@ -18,7 +18,6 @@
   let zoomLevel = 1;
   let FPS = toNumber( $("#fpsInput").val() );
   let videoRotation = 0; // in degrees
-  //let demoLocation = "videos/demo_bounching_ball.mp4";
   let videoFormat = "";
 
   /* ========== RESPONSIVE SECTION =============
@@ -191,10 +190,6 @@
     // Remove old video source
     video.removeAttribute('src'); // empty source
     video.load();
-
-    // Clear raw data and meta data
-    //FPS = undefined;
-    //updateFPS();
     
     canvasVideoCtx.restore(); // Go back to original state
     $("#orientationInput").val("0"); 
@@ -254,36 +249,13 @@
     // Set the dimensions of the video and prepare the canvas
     setVideoZoom(1.0);
     
-    // Prepare analysis for the demo video
-    /*if( (video.src).endsWith( demoLocation ) ) {
-
-      // Put the graphics back
-      showCalibrationControls();
-
-      // Get the frame rate
-      updateFPS( "29.97" );
-      
-      $('#statusMsg').html('Click on "Start analysis" ' );
-      return;
-    }*/
-    
-    // Highlight fields that still need to be filled
-    //$("#fpsInput").css("background", "pink");
-    
-    // Put the graphics back
-    //showCalibrationControls();
-
     // Get the frame rate
     getFPS();
-
-    //else $('#statusMsg').html("Set the frame rate manually");
   });
   
   // Show the video when it has been loaded
   video.addEventListener('loadeddata', () => {    
-    let firstFrame = 0;
-    //if( (video.src).endsWith( demoLocation ) ) firstFrame = 5; // exception for the demo
-    gotoFrame( firstFrame );
+    gotoFrame( 0 );
     tryToEnable();
   });
 
@@ -338,37 +310,23 @@
       MI.Open(file, getResults);
     } catch (error) {
       alert("An error occured. Please set frame rate manually.\n" + error);
-      $('#statusMsg').html( "" );
     }    
 
     // Trigger a change such that the slider is set
     $("#fpsInput").change();
+    $('#statusMsg').html( "" );
   }
   
-  // Update the frame rate (fps)
-  /*function updateFPS( rate ) {
-    $("#fpsInput").val( rate );
-    $("#fpsInput").change();
-  }*/
-
   // Update the frame rate (fps) when user gives input or when calculated
   $("#fpsInput").change( function() {
     if( isNumeric(this.value) && toNumber(this.value) > 0 ) {
 
-      // Remove status message
-      //$('#statusMsg').html( "" );   
-      //this.style.background = ""; // remove pink alert
-
       // Set the new FPS
       FPS = toNumber(this.value);
 
-      // Clear raw data
-      //deleteRawData();
-      
       if( video.src !== "" ) {
         // Update the slider
         let lastFrame = Math.round( ((video.duration-t0) * FPS).toFixed(1) ) - 1;
-        //$("#slider").attr("max", Math.round( ((video.duration-t0) * FPS).toFixed(1) ) - 1 );
         $("#slider-range").slider( "option", "max", lastFrame );
         $("#slider-range").slider("values", 0, 0);
         $("#slider-range").slider("values", 1, lastFrame);
@@ -376,15 +334,9 @@
         $("#endFrame").val(lastFrame);
 
         // Always reset to first frame
-        //if( !(video.src).endsWith( demoLocation ) ) 
-        gotoFrame( 0 );
-        
-        // Video can be enabled
-        //tryToEnable();
+        gotoFrame( 0 );        
       }
-    } //else if (this.value == "expert") {
-      //setExpert();
-    //}
+    }
     this.value = FPS || "";
   });
 
@@ -445,9 +397,7 @@
 
   // Enable the video control buttons
   function enableVideoControl() {
-    //$('#prev').removeAttr('disabled');
     $('#play').removeAttr('disabled');
-    //$('#next').removeAttr('disabled');
     $('#slider').removeAttr('disabled');
     $('#slider-range').slider( "option", "disabled", false );
     $('#startFrame').removeAttr('disabled');
@@ -459,9 +409,7 @@
 
   // Disable the video control buttons
   function disableVideoControl() {
-    //$('#prev').attr('disabled', '');
     $('#play').attr('disabled', '');
-    //$('#next').attr('disabled', '');
     $('#slider').attr('disabled', '');  
     $('#slider-range').slider( "option", "disabled", true );
     $('#startFrame').attr('disabled', '');  
@@ -470,15 +418,6 @@
     $("#zoomOut").attr('disabled', '');
     $("#showMediaInfo").attr('disabled', '');
   }
-
-  // Go to the previous frame
-  //$('#prev').click(function() { gotoFrame(currentFrame-1); });
-
-  // Go to the next frame
-  //$('#next').click(function() { gotoFrame(currentFrame+1); });
-
-  // Update the frame when slider changes
-  //$("#slider").change( function() { gotoFrame(Math.floor(this.value)); });
 
   // Play the video (not an essential function, just to give the user a play button)
   let playing = false;
@@ -638,35 +577,27 @@
   $("#opencv").on("load", () => {
     cv['onRuntimeInitialized']=()=>{
       openCVReady = true;
-      tryToEnable();
-      
-      // Only enable the automatic analysis when Start analysis button is enabled
-      //if( !($("#startAnalysis").prop("disabled")) ) 
-      //$("#automaticAnalysis").removeAttr('disabled');
-      
+      tryToEnable();      
     }
   });
 
   function tryToEnable() {
     if( video.src === "" ) return;
-    //if( $("#fpsInput").val() !== "" ) {
     enableVideoControl();
-      //$('#statusMsg').html("");
     if( openCVReady ) enableAnalysis();
-    //}
   }
 
-  // Enable, disable and set "Start/Stop analysis" button
+  // Enable, disable and set "Process video/Stop processing" button
   let processing = false;
   function setStartAnalysis() {
     processing = false;
-    $("#startAnalysis").text( "Start analysis" );
+    $("#startAnalysis").text( "Process video" );
     $("#startAnalysis").addClass("button-on");
     $("#startAnalysis").removeClass("button-off");    
   }
   function setStopAnalysis() {
     processing = true;
-    $("#startAnalysis").text( "Stop analysis" );
+    $("#startAnalysis").text( "Stop processing" );
     $("#startAnalysis").addClass("button-off");
     $("#startAnalysis").removeClass("button-on");
   }  
@@ -680,7 +611,7 @@
     $('#statusMsg').html("");
   }
   
-  // Event listener when clicking "Start/Stop analysis" button
+  // Event listener when clicking processing button
   $("#startAnalysis").click( () => {
 
     // Stop the player in case it is still playing
@@ -691,14 +622,13 @@
 
     if( processing === false ) {
       
-      // Change the button to "Stop analysis"
+      // Change the button to "Stop processing"
       setStopAnalysis();
 
-      //$('#statusMsg').html( "Processing..." );
       startProcessing();
 
     } else {
-      // Change the button to "Start analysis"
+      // Change the button to "Process video"
       setStartAnalysis();
 
       $('#statusMsg').html( "" );
@@ -859,245 +789,5 @@
       setTimeout(processVideo, 0);     
     });
   }
-
-
-
-  /*const FPS = 30;
-  let streaming = false;
-  let video = document.getElementById('video');
-  let canvasVideo     = document.getElementById('canvasVideo');
-  let canvasVideoCtx  = canvasVideo.getContext('2d');
-  let startAndStop = document.getElementById('startAndStop');
-
-// Trigger click on videoInput when user clicks on menu item
-$("#videoImport").click( () => {
-      $("#videoInput").click();
-});
-
-// Add event listener for when file is selected
-$("#videoInput").change( function() {
-    // Get the file
-    let URL = window.URL || window.webkitURL;
-    let file = this.files[0];
-    video.src = URL.createObjectURL(file);
-    //console.log("Imported video");
-});
-
-  // Prepare canvas size, calibration controls and set frame rate when meta data is available
-video.addEventListener('loadedmetadata', () => {
-    //console.log("Loaded metadata");
-    video.height = video.videoHeight;
-    video.width = video.videoWidth;
-    canvasVideo.width = video.videoWidth;
-    canvasVideo.height = video.videoHeight;
-    video.pause();    // Pause the video (needed because of autoplay)
-    $("#history").val( Math.round(FPS * video.duration) );
-});
-
-
-// Show the video when it has been loaded
-video.addEventListener('loadeddata', () => {    
-    //video.currentTime( 0 );
-    //console.log("Loaded video");
-    canvasVideoCtx.drawImage(video,0,0);
-});
-
-
-startAndStop.addEventListener('click', () => {
-    if (!streaming) {
-      onVideoStarted();
-    } else {
-      onVideoStopped();
-    }
-});
-
-function onVideoStarted() {
-      streaming = true;
-      video.height = video.videoHeight;
-      video.width = video.videoWidth;
-      canvasVideo.width = video.videoWidth;
-      canvasVideo.height = video.videoHeight;
-      startAndStop.innerText = 'Stop';
-      startAnalysis();    
-}
-
-function onVideoStopped() {
-    streaming = false;
-    video.currentTime = 0;
-    startAndStop.innerText = 'Start';
-}
-
-document.getElementById('opencv').onload = function () {
-  console.log("OpenCV is ready");
-  video.addEventListener('canplay', () => {
-        startAndStop.removeAttribute('disabled');
-  });
-  // Use this only with: python3 -m http.server --cgi 8080
-  //video.src="demo_bounching_ball.mp4";
-  //console.log(video);
-  if( window.cv instanceof Promise ) {
-    console.log("cv returns a promise");
-    window.cv.then((target) => {
-      window.cv = target;
-      console.log( target );
-    })
-  }
-  
-};
-
-let masks = [];
-let fgmasks = [];
-let bgMat;
-
-
-$("#skip").change( function() { showResult( parseInt($(this).val()) ); });
-
-function showResult(nSkip) {
-
-  let newResult = new cv.Mat(video.height, video.width, cv.CV_8UC4);//bgMat.clone();
-  cv.cvtColor( bgMat, newResult, cv.COLOR_BGR2BGRA );
-  console.log("numbers of frames = " + masks.length);
-  for( let i=0; i < masks.length && nSkip > 0; i += nSkip ) {
-    masks[i].copyTo(newResult, masks[i]);
-  }
-
-  for( let j=0; j < fgmasks.length && nSkip > 0; j += nSkip ) {
-    fgmasks[j].copyTo(newResult, fgmasks[j]);
-  }
-
-  cv.imshow('canvasOutput3', newResult);
-  newResult.delete();
-}
-
-
-function startAnalysis() {
-
-canvasVideoCtx.drawImage(video,0,0);
-
-// Remove old bgmat
-if( bgMat ) bgMat.delete();
-for( let i=0; i<masks.length; ++i) {
-  masks[i].delete();
-  fgmasks[i].delete();
-}
-masks = [];
-fgmasks = [];
-
-// take first frame of the video
-let frameRGB = new cv.Mat();
-let frame = new cv.Mat(video.height, video.width, cv.CV_8UC4);
-let mask = new cv.Mat(video.height, video.width, cv.CV_8UC1);
-let fgmask = new cv.Mat(video.height, video.width, cv.CV_8UC1);
-
-bgMat = new cv.Mat(video.height, video.width, cv.CV_8UC3);
-
-let f = parseInt($("#frequency").val());
-let threshold = parseFloat($("#threshold").val());
-let history = Math.round( 2 * parseInt($("#history").val()) / f );
-let fgbg = new cv.BackgroundSubtractorMOG2(history, threshold, true);
-let lr=parseFloat($("#learningRate").val());
-let i = 0;
-let firstPass = $('#twoPass').is(':checked'); // False = No second pass
-fgbg.setNMixtures( parseFloat($("#nmixtures").val()) ); 
-fgbg.setBackgroundRatio( parseFloat($("#backgroudRatio").val()) ); 
-fgbg.setShadowThreshold( parseFloat($("#shadowThreshold").val()) ); 
-fgbg.setVarThresholdGen( parseFloat($("#varThresholdGen").val()) ); 
-fgbg.setVarInit( parseFloat($("#varInit").val()) ); 
-fgbg.setVarMin( parseFloat($("#varMin").val()) ); 
-fgbg.setVarMax( parseFloat($("#varMax").val()) ); 
-fgbg.setComplexityReductionThreshold( parseFloat($("#CRT").val()) ); 
-
-
-function processVideo() {
-    try {
-        if (!streaming) {
-            // clean and stop.
-            //console.log("Stopping streaming");
-            //console.log( "i = " + i);
-
-            showResult( parseInt($("#skip").val()) );
-            frame.delete(); mask.delete(); fgbg.delete();
-            frameRGB.delete(); fgmask.delete();
-            return;
-        }
-        // start processing.
-        frame = cv.imread('canvasVideo');
-
-        // See: https://github.com/opencv/opencv/issues/17206
-        cv.cvtColor(frame, frameRGB, cv.COLOR_RGBA2RGB);
-        //cv.medianBlur(frameRGB, frameRGB, 3);
-
-        fgbg.apply(frameRGB, mask, lr);
-
-        if( !firstPass ) {
-          cv.threshold(mask, fgmask, 200, 255, cv.THRESH_BINARY);
-
-            //let fgmask2 = new cv.Mat(video.height, video.width, cv.CV_8UC1);
-            //let M = cv.Mat.ones(2, 2, cv.CV_8U);
-            //cv.erode(fgmask, fgmask, M);
-            //cv.dilate(fgmask, fgmask, M);
-            //cv.threshold(fgmask, fgmask, 100, 255, cv.THRESH_BINARY);
-            
-            //cv.bilateralFilter(fgmask, fgmask, 9, 150, 175, cv.BORDER_DEFAULT);
-            //cv.medianBlur(fgmask, fgmask, 3);
-
-          let fgtemp = new cv.Mat(video.height, video.width, cv.CV_8UC4, [0, 0, 0, 255]);
-          frame.copyTo(fgtemp, fgmask);
-          let temp = new cv.Mat(video.height, video.width, cv.CV_8UC4, [0, 0, 0, 255]);
-          frame.copyTo(temp, mask);
-          masks.push( temp );
-          fgmasks.push( fgtemp );
-        }
-
-        cv.imshow('canvasOutput', mask);
-        fgbg.getBackgroundImage(bgMat);
-        cv.imshow('canvasOutput2', bgMat);
-        //console.log("i=" + i);
-
-        // schedule the next one.
-        let delay = 0;//1000/FPS - (Date.now() - begin);
-        i += Math.round(f);
-        //setTimeout(processVideo, delay);
-        if( i/FPS > video.duration ) {
-          if( firstPass ) {
-            firstPass = false;
-            i = 0;
-            // Set the next iteration to zero
-            lr = 0.0;
-            //console.log("threshold= " + fgbg.getVarThreshold(  ));
-          } else {
-            onVideoStopped();
-          }
-        }
-        video.currentTime = i/FPS ;
-
-        video.addEventListener("seeked", function(e) {
-          // remove handler or else it will draw another frame on same canvas in next seek
-          e.target.removeEventListener(e.type, arguments.callee); 
-          canvasVideoCtx.drawImage(video,0,0);
-          setTimeout(processVideo, delay);
-       
-        });
-
-    } catch (err) {
-       console.error('There was an error:', err);
-       //utils.printError(err);
-       console.log(cv.exceptionFromPtr(err).msg);
-    }
-};
-
-// schedule the first one.
-video.currentTime = 0 ;
-video.addEventListener("seeked", function(e) {
-  // remove handler or else it will draw another frame on same canvas in next seek
-  e.target.removeEventListener(e.type, arguments.callee); 
-  canvasVideoCtx.drawImage(video,0,0);
-  //result = cv.imread('canvasVideo');
-  setTimeout(processVideo, 0);
-       
-});
-
-
-};*/
 
 })();

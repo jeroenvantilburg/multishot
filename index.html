@@ -19,43 +19,11 @@
   <meta name="msapplication-TileColor" content="#2d89ef">
   <meta name="msapplication-config" content="browserconfig.xml">
   <meta name="theme-color" content="#ffffff"-->  
-
-
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
-  <!--link rel="stylesheet" href="/resources/demos/style.css"-->
-
   <link rel="stylesheet" type="text/css" href="style.css" media="screen,projection" />
   <link rel="stylesheet" 
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <base target="_blank">
-
-
-  <!--script>
-  $( function() {
-    $( "#slider-range" ).slider({
-      range: true,
-      min: 0,
-      max: 500,
-      values: [ 75, 300 ],
-      slide: function( event, ui ) {
-        if( ui.handleIndex == 0 ) {
-          $("#startFrame").val( ui.value );
-        } else {
-          $("#endFrame").val( ui.value );          
-        }
-      }
-    });
-    $("#startFrame").change( function() {
-      $( "#slider-range" ).slider("values", 0, this.value);
-    });
-    $("#endFrame").change( function() {
-      $( "#slider-range" ).slider("values", 1, this.value);
-    });
-  } );
-  </script-->
- 
-
-
 </head>  
 <body>
   <div class="header">    
@@ -78,22 +46,16 @@
   </div>
   
   <div class="body">
-    <!--div class="showSideBar"><i class="fa fa-angle-left"></i></div>
-    <div class="hideSideBar"><i class="fa fa-angle-right"></i></div-->
     <div class="page">  
 	  	<div class="page-header">               
         <div class="center">
-          <button title="Start/Stop the video analysis" id="startAnalysis" class="main-button button-on" disabled>Start analysis</button>
+          <button title="Start/Stop the video analysis" id="startAnalysis" class="main-button button-on" disabled>Process video</button>
         </div>
         <div class="center">
            <nobr id="statusMsg"></nobr>
         </div>
         <div class="control">
-          <!--button title="Go to previous frame" id="prev" class="player" disabled><i class="fa fa-step-backward"></i></button-->
           <button title="Play / Pause" id="play" class="player" disabled><i class="fa fa-play"></i></button>
-          <!--button title="Go to next frame" id="next" class="player" disabled><i class="fa fa-step-forward"></i></button-->
-          <!--input id="slider" type="range" min="0" max="0" step=1 value="0" disabled>
-          <nobr id="frameNumber">0 / 0</nobr-->
           <input id="startFrame" class="sliderInput" type="number" value="" disabled></input>
           <div id="slider-range"></div>
           <input id="endFrame" class="sliderInput" type="number" value="" disabled></input>
@@ -109,21 +71,7 @@
           <div id="videoText"></div>
         </div>    
       </div>
-    </div>
-    
-    <!--div class="sidebar">
-      <div class="side-header">
-        Data        
-      </div>
-      <div class="side-content">
-        <table style="border-spacing: 0;">
-          <tr>
-            <td title="Set the frame rate (frames per second) manually">Frame rate:</td>
-            <td title="Set the frame rate (frames per second) manually"><input id="fpsInput" type="text" style="width:80px"></input> fps</td>
-          </tr>
-        </table>
-      </div>
-    </div-->
+    </div>    
   </div>
   
   <!-- The Modal boxes -->
@@ -331,7 +279,6 @@
   </div>
 
   <!--script src="scripts/registerSW.js"></script-->
-  <!--script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script-->
   <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
   <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
   <script async src="scripts/opencv_bgfg.js" id="opencv"></script>  
