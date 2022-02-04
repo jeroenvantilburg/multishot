@@ -477,8 +477,6 @@
         e.target.removeEventListener(e.type, arguments.callee); 
         
         canvasVideoCtx.drawImage(video,0,0);
-        //$('#frameNumber').html( currentFrame + " / " + $("#slider").attr("max") );
-        //$("#slider").val( currentFrame );
       });
       return true;
     }
