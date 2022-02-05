@@ -104,14 +104,16 @@
       <h2>Help</h2>
 
       <b>General</b><br/>
-      Multi Shot is a HTML5 javascript-application for analysing the motion of objects in videos.
-      It is primarily intended for use in classrooms to teach students about motion
+      Multi Shot is a HTML5 javascript-application for capturing the motion of a moving
+      object in video by overlaying the different frames. The result is displayed
+      in a single picture. This app can also be used in classrooms to teach students about motion
       and mechanics. 
       <br/><br/>
       
       <b>Getting started</b><br/>
-      ...
-      <br/>
+      Click on the menu icon at the right top corner and upload a video. Select the frames that
+      you want to process and press "Process video".
+      <br/><br/>
       
       <b>Video formats</b><br/>
       Video support depends on the browser and operating system. Almost all browsers support
@@ -129,12 +131,13 @@
       The camera should not move during the video. 
       <br/><br/>
 
-      <b>Setting up the analysis</b><br/>
-      Upload the video that you would like to analyse. 
-      The frame rate is then automatically obtained from the video meta data 
-      using the MediaInfo tool. 
-      In the event that this calculation stalls, you can set the frame rate manually. In most cases
+      <b>Settings</b><br/>
+      You can choose to skip processing frames (faster). 
+      The frame rate is automatically obtained from the video meta data 
+      using the MediaInfo tool. In the event that this calculation stalls, you can set the frame rate manually. In most cases
       a frame rate of 30 or 60 frames per second (fps) is appropriate. 
+      A further explanation of the expert settings can be found in the
+      <a href="https://github.com/opencv/opencv/blob/4.x/modules/video/src/bgfg_gaussmix2.cpp">source code</a>.
       <br/><br/>
 
       <b>Security/privacy</b><br/>
@@ -199,7 +202,7 @@
         <tr><th colspan="3">Basic</th></tr>        
         <tr>
           <td>Scan rate:</td>
-          <td><input id="frequency" type="number" min="1" step="1" value="3"></input></td>
+          <td><input id="frequency" type="number" min="1" step="1" value="1"></input></td>
           <td>Set the frequency at which the frames are scanned. A value of 1 means
           that each frames is processed.</td>
         </tr>
@@ -211,6 +214,18 @@
           <td>Frame rate:</td>
           <td><input id="fpsInput" type="number" value="30"></input></td>
           <td>Set the frame rate (frames per second) manually.</td>
+        </tr>
+        <tr>
+          <td>Video orientation:</td>
+          <td>
+            <select id="orientationInput">
+              <option value="0">0</option>
+              <option value="90">90</option> 
+              <option value="180">180</option> 
+              <option value="270">270</option> 
+            </select>
+          </td>
+          <td>Set the orientation of the video in degrees manually.</td>
         </tr>
         <tr>
           <td></td>
