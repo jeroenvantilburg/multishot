@@ -344,6 +344,11 @@
     this.value = FPS || "";
   });
 
+  $("#orientationInput").change( function() { 
+    rotateContext();
+    gotoFrame(currentFrame);
+  });
+  
   // Rotate the video context (only needed for iOS due to bug)
   function rotateContext() {
     canvasVideoCtx.restore(); // remove old rotation
