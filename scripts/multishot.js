@@ -92,6 +92,10 @@
      Shows and hides the modal boxes.
      =========================================== */    
 
+  $('#expert').on('change', function(e) {
+    $('.expert').toggle();
+  });
+
   // Remove focus after enter for all input text elements
   let focusedElement;
   function blurOnEnter(e){ 
@@ -110,7 +114,7 @@
     focusedElement = this;
     // select all text in any field on focus for easy re-entry. 
     // Delay sightly to allow focus to "stick" before selecting.
-    setTimeout(function () {focusedElement.setSelectionRange(9999,9999);}, 0);
+    //setTimeout(function () {focusedElement.setSelectionRange(9999,9999);}, 0);
   });
 
   
@@ -646,10 +650,12 @@
   function showResult() {
 
     let nSkip = parseInt($("#skip").val() );
-    
+    let f = parseInt($("#frequency").val());
+    $("#deltaT").html( (nSkip*f/FPS).toPrecision(3).replace('.',',') + " s" );
+
     let newResult = new cv.Mat(video.height, video.width, cv.CV_8UC4);//bgMat.clone();
     cv.cvtColor( bgMat, newResult, cv.COLOR_BGR2BGRA );
-    console.log("numbers of frames = " + masks.length);
+    //console.log("numbers of frames = " + masks.length);
     for( let i=0; i < masks.length && nSkip > 0; i += nSkip ) {
       masks[i].copyTo(newResult, masks[i]);
     }
@@ -665,6 +671,8 @@
 
   function startProcessing() {
 
+    $("#skip").val( 1 );
+    $("#skipSlider").val( 1 );
     $('#statusMsg').html( "Processing..." );
     disableVideoControl();
 
@@ -734,13 +742,14 @@
         i += Math.round(f);
         if( i > lastFrame ) {
         //if( i/FPS > video.duration ) {
-          console.log("i=" + i);
+          //console.log("i=" + i);
           if( firstPass ) {
             firstPass = false;
             i = firstFrame;
             // Set the next iteration to zero
             lr = 0.0;
-            console.log("first pass done");
+            //f = parseInt($("#frequency").val());
+            //console.log("first pass done");
           } else {
             setStartAnalysis();
             $('#statusMsg').html( "" );
@@ -787,5 +796,28 @@
       setTimeout(processVideo, 0);     
     });
   }
+
+  $("#download").click( function() { 
+    let videoFile = $('#videoInput').prop('files')[0];
+    let videoName = (typeof videoFile === "undefined" ) ? "multishot." : videoFile.name;
+    let filename = prompt("Save as...", videoName.substr(0, videoName.lastIndexOf('.'))+".png");
+    if (filename != null && filename != "") {
+      let canvas = document.querySelector("#canvasResult");
+      var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");; 
+      download( filename, image);
+    }
+  });
+
+  // Create an invisible download element
+  function download(filename, image) {
+    var element = document.createElement('a');
+    element.setAttribute('href', image);
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }  
+
 
 })();

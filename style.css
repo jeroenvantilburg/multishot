@@ -165,59 +165,6 @@ input:disabled+label {
   overflow: auto;
 }
 
-/*.sidebar {
-  padding: 0px 5px;
-  padding: 0px 0px;
-  background: #fbfbfb;
-  flex: 0 0 360px 1000px;
-  overflow: auto;
-}
-
-.side-header {
-  margin: 0px 0px;
-  padding: 5px;
-  background: #bbb;
-  font-size: 1.25em;
-  font-family: Verdana;
-  font-weight: bold;
-}
-
-.side-content {
-  padding: 5px 5px;
-  background: #fbfbfb;
-}
-
-.showSideBar{
-  display: none;
-  position: absolute;
-  top: 0px;
-  right: 10px;
-  overflow: hidden;
-  height: 40px;
-  font-size: 3.0em;
-  z-index: 1;
-}
-.showSideBar i {
-  vertical-align: top;
-  margin-top: -5px;
-}
-
-.hideSideBar{
-  display: none;
-  position: absolute;
-  top: 0px;
-  right: 10px;
-  overflow: hidden;
-  height: 40px;
-  font-size: 3.0em;
-  z-index: 1;
-}
-.hideSideBar i {
-  vertical-align: top;
-  margin-top: -5px;
-}
-*/
-
 /* Layout for the start and stop button */
 .main-button {
   background-color: #4CAF50;
@@ -242,7 +189,6 @@ input:disabled+label {
 .button-off {
   background-color: rgb(182, 0, 0);
 }
-
 
 
 /* Dropdown menu. See
@@ -361,6 +307,25 @@ input:disabled+label {
   height: 90vh;
 }
 
+.result-container {
+  overflow: auto;
+  height: 80vh;
+}
+
+.modal input[type="number"] {
+  width:50px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.modal input[type="range"] {
+  vertical-align: middle;
+}
+
+#deltaT {
+  margin: 10px;
+}
+
 /* The Close Button */
 .close {
   color: #aaa;
@@ -470,9 +435,6 @@ input:disabled+label {
 @media screen and (max-width: 780px) { 
   .body {display: block;}
   .page {width: 100vw; height: 100%}
-  /*.sidebar{position: absolute; top: 0px; width: 0px; transition: 0.3s;
-    right: 0px; height: 100%;}
-  .showSideBar{display: block;}*/
   
   .modal-content{padding: 5px;width: 98%;}
    #settingsModal table td:nth-child(1) {min-width: 80px;}

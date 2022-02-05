@@ -79,8 +79,11 @@
       Skip frames:
       <input id="skipSlider" type="range" min="0" max="20" step="1" value="1">
       <input id="skip" type="number" min="0" step="1" value="1"></input>
-      <canvas id="canvasResult"></canvas>
-
+      &Delta;t=<nobr id="deltaT">0 s</nobr>
+      <button title="Download picture" id="download" class="main-button"><i class="fa fa-download"></i> Download</button> 
+      <div class="result-container">
+        <canvas id="canvasResult"></canvas>
+      </div>
     </div>
   </div>
 
@@ -193,77 +196,112 @@
     <div class="modal-content"> <span title="Close window" class="close">&times;</span>
       <h2>Settings</h2>
       <table>
-        <tr><th colspan="3">Analysis</th></tr>        
+        <tr><th colspan="3">Basic</th></tr>        
+        <tr>
+          <td>Scan rate:</td>
+          <td><input id="frequency" type="number" min="1" step="1" value="3"></input></td>
+          <td>Set the frequency at which the frames are scanned. A value of 1 means
+          that each frames is processed.</td>
+        </tr>
+      </table>
+      <br/>
+      <table>
+        <tr><th colspan="3">Advanced</th></tr>        
         <tr>
           <td>Frame rate:</td>
           <td><input id="fpsInput" type="number" value="30"></input></td>
           <td>Set the frame rate (frames per second) manually.</td>
         </tr>
         <tr>
-          <td>Scan rate:</td>
-          <td><input id="frequency" type="number" min="1" step="1" value="3"></input></td>
-          <td>Set the frequency at which the frames are scanned. A value of 1 means
-          that each frames is used.</td>
+          <td></td>
+          <td><input type="checkbox" id="expert"></td>
+          <td>Show expert settings.</td>
         </tr>
+      </table>
+      <br/>
+      <table class="expert">
+        <tr><th colspan="3">Expert</th></tr>        
         <tr>
           <td>Threshold:</td>
           <td><input id="threshold" type="number" value="16"></input></td>
-          <td>...</td>
+          <td>Threshold to decide if it is well described by the background model or not. 
+          Does not influence the update of the background. 
+          Default is 16 (corresponds to 4 sigma).</td>
         </tr>
         <tr>
           <td>Tg:</td>
           <td><input id="varThresholdGen" type="number" value="9"></input></td>
-          <td>...</td>
+          <td>Threshold to decide when a sample is close to the existing components. 
+          If it is not close to any a new component will be generated.
+          Smaller Tg leads to more generated components and higher Tg might make
+          lead to small number of components but they can grow too large.
+          Default is 9 (corresponds to 3 sigma).</td>
         </tr>
-        <tr>
+        <!--tr>
           <td>History:</td>
           <td><input id="history" type="number" step="1" value="5"></input></td>
           <td>This number is now automatically determined.</td>
-        </tr>
+        </tr-->
         <tr>
           <td>Learning rate:</td>
           <td><input id="learningRate" type="number" value="-0.1"></input></td>
-          <td>...</td>
+          <td>Contribution of each frame to the background model. Should be between
+              0 and 1. Negative value means that this contribution is automatically 
+              determined.</td>
         </tr>
         <tr>
           <td>Number of mixtures:</td>
           <td><input id="nmixtures" type="number" value="5"></input></td>
-          <td>...</td>
+          <td>The maximum allowed number of mixture components</td>
         </tr>
         <tr>
           <td>Background ratio:</td>
           <td><input id="backgroudRatio" type="number" value="0.5"></input></td>
-          <td>...</td>
+          <td>Threshold when the component becomes significant enough to be included into
+              the background model. It is the TB=1-cf from the paper. Default is 0.5.</td>
         </tr>
         <tr>
           <td>Shadow threshold:</td>
           <td><input id="shadowThreshold" type="number" value="0.5"></input></td>
-          <td>...</td>
+          <td>Shadow is detected if the pixel is darker
+              version of the background. This is a threshold on how much darker the shadow can be.
+              Value of 0.5 (default) means that if pixel is more than 2 times darker
+              then it is not shadow.</td>
         </tr>
         <tr>
           <td>VarInit:</td>
           <td><input id="varInit" type="number" value="400"></input></td>
-          <td>...</td>
+          <td>Initial variance for the newly generated components.
+              Influences the speed of adaptation. A good guess should be made.
+              Default is 400.</td>
         </tr>
         <tr>
           <td>VarMin:</td>
           <td><input id="varMin" type="number" value="4"></input></td>
-          <td>...</td>
+          <td>Minimal variance of the components.
+              Influences the speed of adaptation. A good guess should be made.
+              Default is 4.</td>
         </tr>
         <tr>
           <td>VarMax:</td>
           <td><input id="varMax" type="number" value="1600"></input></td>
-          <td>...</td>
+          <td>Maximal variance of the components.
+              Influences the speed of adaptation. A good guess should be made.
+              Default is 1600</td>
         </tr>
         <tr>
           <td>Complexity reduction:</td>
           <td><input id="CRT" type="number" value="0.05"></input></td>
-          <td>...</td>
+          <td>Complexity reduction prior. 
+              Related to the number of samples needed to accept that a component
+              actually exists. Default is 0.05.</td>
         </tr>
         <tr>
           <td>Two pass:</td>
           <td><input id="twoPass" type="checkbox" checked></input></td>
-          <td>...</td>
+          <td>In the first pass the background model is determined. In the 
+              second pass the (moving) foreground is selected. Unchecking this
+              box means that only one pass is done in the processing.</td>
         </tr>
       </table>        
       <br/>
