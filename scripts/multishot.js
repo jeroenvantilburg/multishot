@@ -293,6 +293,9 @@
       // Update frame rate
       let frameRate = MI.Get(MediaInfoModule.Stream.Video, 0, 'FrameRate');
       $("#fpsInput").val( frameRate );
+      
+      // Trigger a change such that the slider is set
+      $("#fpsInput").change();
 
       // Get the video format
       videoFormat = MI.Get(MediaInfoModule.Stream.Video, 0, 'Format');
@@ -300,6 +303,7 @@
       // Finalize
       MI.Close();
       MI.delete();
+      $('#statusMsg').html( "" );
     }
               
     // Initialise MediaInfo
@@ -314,11 +318,9 @@
       MI.Open(file, getResults);
     } catch (error) {
       alert("An error occured. Please set frame rate manually.\n" + error);
+      $('#statusMsg').html( "" );
     }    
 
-    // Trigger a change such that the slider is set
-    $("#fpsInput").change();
-    $('#statusMsg').html( "" );
   }
   
   // Update the frame rate (fps) when user gives input or when calculated
