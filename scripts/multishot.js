@@ -319,6 +319,8 @@
     } catch (error) {
       alert("An error occured. Please set frame rate manually.\n" + error);
       $('#statusMsg').html( "" );
+      // Trigger a change such that the slider is set with the default value
+      $("#fpsInput").change();
     }    
 
   }
