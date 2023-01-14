@@ -278,7 +278,7 @@
 
       // Update orientation/rotation
       videoRotation = MI.Get(MediaInfoModule.Stream.Video, 0, 'Rotation');
-      if( iOS() && videoRotation ) {        
+      /*if( iOS() && videoRotation ) {        
         if( Math.abs(90 - videoRotation) < 1 ) {
           $("#orientationInput").val( "90" );
         } else if( Math.abs(180 - videoRotation ) < 1 ) {
@@ -288,7 +288,7 @@
         }
         canvasVideoCtx.save(); // save unrotated state
         rotateContext();
-      }
+      }*/
       
       // Update frame rate
       let frameRate = MI.Get(MediaInfoModule.Stream.Video, 0, 'FrameRate');
